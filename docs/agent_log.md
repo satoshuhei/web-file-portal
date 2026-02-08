@@ -154,6 +154,29 @@
 ## 2026-02-09
 
 ### Instruction
+- Create a batch command to sync filesystem changes into the database.
+
+### Agent Response
+- Added a sync_file_index management command to scan local storage and update FileEntry records.
+- Documented the sync command and recorded the decision to use batch sync.
+
+### Commands
+- None
+
+### Files Changed
+- README.md
+- docs/agent_log.md
+- docs/decision_log.md
+- files/management/__init__.py
+- files/management/commands/__init__.py
+- files/management/commands/sync_file_index.py
+
+### Notes / Risks
+- Sync requires manual or scheduled execution.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response

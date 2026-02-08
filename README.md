@@ -27,6 +27,13 @@ python manage.py seed_sample_data
 This command creates sample tenants, file entries, and audit logs, and writes sample
 files under `APP_LOCAL_STORAGE_ROOT`.
 
+## File index sync
+```powershell
+python manage.py sync_file_index
+```
+
+This command scans `APP_LOCAL_STORAGE_ROOT` and syncs file entries to the database.
+
 ## Notes
 - Do not commit `.env`.
 - Use `.env.example` as the template for local configuration.
