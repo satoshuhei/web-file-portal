@@ -19,6 +19,14 @@ python -m pip install -r requirements.txt
 python manage.py runserver
 ```
 
+## Sample data
+```powershell
+python manage.py seed_sample_data
+```
+
+This command creates sample tenants, file entries, and audit logs, and writes sample
+files under `APP_LOCAL_STORAGE_ROOT`.
+
 ## Notes
 - Do not commit `.env`.
 - Use `.env.example` as the template for local configuration.

@@ -125,6 +125,35 @@
 ## 2026-02-09
 
 ### Instruction
+- Create sample data for tenants, files, and audit logs, plus sample files on disk.
+
+### Agent Response
+- Added Tenant, FileEntry, and AuditLog models with migrations.
+- Added a management command to seed sample data and create sample files.
+- Ran migrations and seeded the database.
+
+### Commands
+- .\.venv\Scripts\Activate.ps1; python manage.py makemigrations tenants files audit; python manage.py migrate; python manage.py seed_sample_data
+
+### Files Changed
+- README.md
+- audit/migrations/0001_initial.py
+- audit/models.py
+- core/management/__init__.py
+- core/management/commands/__init__.py
+- core/management/commands/seed_sample_data.py
+- docs/agent_log.md
+- files/migrations/0001_initial.py
+- files/models.py
+- tenants/migrations/0001_initial.py
+- tenants/models.py
+
+### Notes / Risks
+- Sample files were created under APP_LOCAL_STORAGE_ROOT.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response
