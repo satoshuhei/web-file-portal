@@ -173,7 +173,7 @@
 
         .date-range {
             display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            grid-template-columns: 1fr;
             align-items: center;
             gap: 8px;
         }
@@ -181,6 +181,13 @@
         .date-range span {
             color: var(--muted);
             font-size: 0.8rem;
+        }
+
+        .date-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            gap: 8px;
         }
 
         .filter {
@@ -327,17 +334,22 @@ report.pdf">{{ bulk_query }}</textarea>
                         <div class="search-block">
                             <label>更新日</label>
                             <div class="date-range">
-                                <input id="date_from" type="date" name="date_from" value="{{ date_from }}">
-                                <span>〜</span>
-                                <input id="date_to" type="date" name="date_to" value="{{ date_to }}">
+                                <div class="date-row">
+                                    <span>From</span>
+                                    <input id="date_from" type="date" name="date_from" value="{{ date_from }}">
+                                </div>
+                                <div class="date-row">
+                                    <span>To</span>
+                                    <input id="date_to" type="date" name="date_to" value="{{ date_to }}">
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="search-bottom">
                         <div class="search-block">
                             <label for="ext_free">拡張子（フリー入力）</label>
                             <input id="ext_free" type="text" name="ext_free" value="{{ ext_free }}" placeholder="例: log, json">
                         </div>
-                    </div>
-                    <div class="search-bottom">
                         <div class="search-block">
                             <label>拡張子（チェック）</label>
                             <div class="checkboxes">

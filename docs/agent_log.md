@@ -197,6 +197,26 @@
 ## 2026-02-09
 
 ### Instruction
+- Move extension free input to the bottom row.
+- Stack date from/to in two lines inside the date block.
+
+### Agent Response
+- Relocated the extension free input to the bottom row.
+- Stacked date from/to inputs vertically with labels.
+
+### Commands
+- None
+
+### Files Changed
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Update the file list to show folders and allow navigation like Windows Explorer.
 
 ### Agent Response
