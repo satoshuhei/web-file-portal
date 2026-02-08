@@ -347,6 +347,26 @@
 ## 2026-02-09
 
 ### Instruction
+- Split search area into top and bottom rows and move extension checkboxes to the bottom.
+- Make extension checkboxes horizontal.
+
+### Agent Response
+- Restructured the search form into top and bottom rows.
+- Switched extension checkboxes to a horizontal layout.
+
+### Commands
+- None
+
+### Files Changed
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response

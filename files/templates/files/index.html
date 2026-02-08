@@ -79,9 +79,20 @@
 
         .search {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 14px;
+        }
+
+        .search-top {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .search-bottom {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
 
         .search-block {
@@ -102,9 +113,9 @@
         }
 
         .checkboxes {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-            gap: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .checkboxes label {
@@ -294,45 +305,49 @@
                 {% endif %}
                 <form method="get" class="search">
                     <input type="hidden" name="path" value="{{ current_path }}">
-                    <div class="search-block">
-                        <label for="name">ファイル名検索</label>
-                        <input id="name" type="text" name="name" value="{{ name_query }}" placeholder="例: report">
-                    </div>
-                    <div class="search-block">
-                        <label for="folder">フォルダ名検索</label>
-                        <input id="folder" type="text" name="folder" value="{{ folder_query }}" placeholder="例: docs">
-                    </div>
-                    <div class="search-block">
-                        <label for="regex">正規表現検索</label>
-                        <input id="regex" type="text" name="regex" value="{{ regex_query }}" placeholder="例: ^readme.*\.txt$">
-                        <div class="note">※ファイル名のみ対象</div>
-                    </div>
-                    <div class="search-block">
-                        <label for="bulk">一括検索（1行に1件）</label>
-                        <textarea id="bulk" name="bulk" rows="3" placeholder="sample.txt
+                    <div class="search-top">
+                        <div class="search-block">
+                            <label for="name">ファイル名検索</label>
+                            <input id="name" type="text" name="name" value="{{ name_query }}" placeholder="例: report">
+                        </div>
+                        <div class="search-block">
+                            <label for="folder">フォルダ名検索</label>
+                            <input id="folder" type="text" name="folder" value="{{ folder_query }}" placeholder="例: docs">
+                        </div>
+                        <div class="search-block">
+                            <label for="regex">正規表現検索</label>
+                            <input id="regex" type="text" name="regex" value="{{ regex_query }}" placeholder="例: ^readme.*\.txt$">
+                            <div class="note">※ファイル名のみ対象</div>
+                        </div>
+                        <div class="search-block">
+                            <label for="bulk">一括検索（1行に1件）</label>
+                            <textarea id="bulk" name="bulk" rows="3" placeholder="sample.txt
 report.pdf">{{ bulk_query }}</textarea>
-                    </div>
-                    <div class="search-block">
-                        <label>更新日</label>
-                        <div class="date-range">
-                            <input id="date_from" type="date" name="date_from" value="{{ date_from }}">
-                            <span>〜</span>
-                            <input id="date_to" type="date" name="date_to" value="{{ date_to }}">
+                        </div>
+                        <div class="search-block">
+                            <label>更新日</label>
+                            <div class="date-range">
+                                <input id="date_from" type="date" name="date_from" value="{{ date_from }}">
+                                <span>〜</span>
+                                <input id="date_to" type="date" name="date_to" value="{{ date_to }}">
+                            </div>
+                        </div>
+                        <div class="search-block">
+                            <label for="ext_free">拡張子（フリー入力）</label>
+                            <input id="ext_free" type="text" name="ext_free" value="{{ ext_free }}" placeholder="例: log, json">
                         </div>
                     </div>
-                    <div class="search-block">
-                        <label for="ext_free">拡張子（フリー入力）</label>
-                        <input id="ext_free" type="text" name="ext_free" value="{{ ext_free }}" placeholder="例: log, json">
-                    </div>
-                    <div class="search-block">
-                        <label>拡張子（チェック）</label>
-                        <div class="checkboxes">
-                            {% for ext in ext_options %}
-                                <label>
-                                    <input type="checkbox" name="ext" value="{{ ext }}" {% if ext in selected_ext %}checked{% endif %}>
-                                    .{{ ext }}
-                                </label>
-                            {% endfor %}
+                    <div class="search-bottom">
+                        <div class="search-block">
+                            <label>拡張子（チェック）</label>
+                            <div class="checkboxes">
+                                {% for ext in ext_options %}
+                                    <label>
+                                        <input type="checkbox" name="ext" value="{{ ext }}" {% if ext in selected_ext %}checked{% endif %}>
+                                        .{{ ext }}
+                                    </label>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                     <div class="search-actions">
