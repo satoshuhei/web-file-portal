@@ -171,6 +171,51 @@
             font-size: 0.8rem;
         }
 
+        .type-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .type-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #9aa0a6;
+        }
+
+        .type-dot.folder {
+            background: #d28b2d;
+        }
+
+        .type-dot.pdf {
+            background: #d64545;
+        }
+
+        .type-dot.word {
+            background: #2b6cb0;
+        }
+
+        .type-dot.excel {
+            background: #2f855a;
+        }
+
+        .type-dot.powerpoint {
+            background: #dd6b20;
+        }
+
+        .type-dot.text {
+            background: #718096;
+        }
+
+        .type-dot.markdown {
+            background: #2c7a7b;
+        }
+
+        .type-dot.image {
+            background: #805ad5;
+        }
+
         .preview-link {
             color: var(--accent);
             text-decoration: none;
@@ -267,7 +312,12 @@ report.pdf">{{ bulk_query }}</textarea>
                                     {% if search_active %}
                                         <td>{{ entry.display_path }}</td>
                                     {% endif %}
-                                    <td>{{ entry.type }}</td>
+                                    <td>
+                                        <span class="type-label">
+                                            <span class="type-dot {{ entry.type_color }}"></span>
+                                            {{ entry.type }}
+                                        </span>
+                                    </td>
                                     <td>{{ entry.modified_at }}</td>
                                     <td>{{ entry.size }}</td>
                                     <td><span class="badge">{{ entry.status }}</span></td>

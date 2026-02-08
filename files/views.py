@@ -38,6 +38,27 @@ def _build_breadcrumbs(current_path: str):
     return crumbs
 
 
+def _type_color_key(extension: str, is_dir: bool) -> str:
+    if is_dir:
+        return "folder"
+    ext = (extension or "").lower()
+    if ext in {"xls", "xlsx", "csv"}:
+        return "excel"
+    if ext in {"doc", "docx"}:
+        return "word"
+    if ext in {"ppt", "pptx"}:
+        return "powerpoint"
+    if ext in {"pdf"}:
+        return "pdf"
+    if ext in {"txt", "log"}:
+        return "text"
+    if ext in {"md"}:
+        return "markdown"
+    if ext in {"png", "jpg", "jpeg", "gif", "bmp"}:
+        return "image"
+    return "default"
+
+
 def _storage_root() -> Path:
     root = os.getenv("APP_LOCAL_STORAGE_ROOT", "C:\\data\\public")
     return Path(root)
@@ -164,6 +185,7 @@ def index(request):
                     "name": entry.name,
                     "type": file_type,
                     "extension": entry.extension.lower(),
+                    "type_color": _type_color_key(entry.extension, is_dir),
                     "modified_at": modified_at.strftime("%Y-%m-%d %H:%M"),
                     "size": "-" if is_dir else _format_size(entry.size_bytes),
                     "status": "読み取り専用",
@@ -188,6 +210,7 @@ def index(request):
                     "name": entry.name,
                     "type": file_type,
                     "extension": entry.extension.lower(),
+                    "type_color": _type_color_key(entry.extension, is_dir),
                     "modified_at": modified_at.strftime("%Y-%m-%d %H:%M"),
                     "size": "-" if is_dir else _format_size(entry.size_bytes),
                     "status": "読み取り専用",

@@ -278,6 +278,26 @@
 ## 2026-02-09
 
 ### Instruction
+- Add extension-based colors before file type names in the list.
+
+### Agent Response
+- Added type color mapping in the files view.
+- Rendered colored dots before type names with common file colors.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Unknown extensions use a gray color.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response
