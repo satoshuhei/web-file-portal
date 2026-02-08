@@ -237,6 +237,27 @@
 ## 2026-02-09
 
 ### Instruction
+- Enable file preview when clicking file names, with PDF opened in browser and others as text.
+
+### Agent Response
+- Added a preview endpoint for files with PDF streaming and text JSON responses.
+- Added a modal preview UI and linked file names to preview requests.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/urls.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Text preview is limited to 200 KB and may truncate large files.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response

@@ -1,5 +1,8 @@
+import os
 import re
+from pathlib import Path
 
+from django.http import FileResponse, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -33,6 +36,58 @@ def _build_breadcrumbs(current_path: str):
         acc.append(part)
         crumbs.append((part, "/".join(acc)))
     return crumbs
+
+
+def _storage_root() -> Path:
+    root = os.getenv("APP_LOCAL_STORAGE_ROOT", "C:\\data\\public")
+    return Path(root)
+
+
+def _resolve_path(relative_path: str) -> Path | None:
+    storage_root = _storage_root().resolve()
+    full_path = (storage_root / relative_path).resolve()
+    try:
+        full_path.relative_to(storage_root)
+    except ValueError:
+        return None
+    return full_path
+
+
+def preview(request):
+    rel_path = _normalize_path(request.GET.get("path", ""))
+    if not rel_path:
+        return JsonResponse({"error": "path is required"}, status=400)
+
+    entry = FileEntry.objects.filter(relative_path=rel_path).first()
+    if entry is None or entry.is_dir:
+        return JsonResponse({"error": "file not found"}, status=404)
+
+    full_path = _resolve_path(rel_path)
+    if full_path is None or not full_path.exists():
+        return JsonResponse({"error": "file not found"}, status=404)
+
+    if entry.extension.lower() == "pdf":
+        return FileResponse(
+            full_path.open("rb"),
+            content_type="application/pdf",
+        )
+
+    max_bytes = 200 * 1024
+    with full_path.open("rb") as handle:
+        data = handle.read(max_bytes + 1)
+
+    truncated = len(data) > max_bytes
+    if truncated:
+        data = data[:max_bytes]
+
+    content = data.decode("utf-8", errors="replace")
+    return JsonResponse(
+        {
+            "name": entry.name,
+            "content": content,
+            "truncated": truncated,
+        }
+    )
 
 
 def _is_search_active(name_query, folder_query, regex_query, bulk_query):
@@ -111,6 +166,7 @@ def index(request):
                 {
                     "name": entry.name,
                     "type": file_type,
+                    "extension": entry.extension.lower(),
                     "modified_at": modified_at.strftime("%Y-%m-%d %H:%M"),
                     "size": "-" if is_dir else _format_size(entry.size_bytes),
                     "status": "読み取り専用",
@@ -134,6 +190,7 @@ def index(request):
                 {
                     "name": entry.name,
                     "type": file_type,
+                    "extension": entry.extension.lower(),
                     "modified_at": modified_at.strftime("%Y-%m-%d %H:%M"),
                     "size": "-" if is_dir else _format_size(entry.size_bytes),
                     "status": "読み取り専用",
