@@ -197,6 +197,24 @@
 ## 2026-02-09
 
 ### Instruction
+- Keep extension checkboxes and labels on the same line.
+
+### Agent Response
+- Adjusted checkbox label styling to enforce inline alignment.
+
+### Commands
+- None
+
+### Files Changed
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Place extension free input and extension checkboxes side by side.
 
 ### Agent Response
