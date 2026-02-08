@@ -217,6 +217,26 @@
 ## 2026-02-09
 
 ### Instruction
+- Add file name, folder name, regex, and bulk search to the files list.
+
+### Agent Response
+- Implemented search filters and regex handling in the files view.
+- Added search UI and results layout updates to the files template.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Regex search is case-insensitive and applies to name and path.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response
