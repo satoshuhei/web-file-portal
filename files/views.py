@@ -2,7 +2,7 @@ import os
 import re
 from pathlib import Path
 
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -81,13 +81,10 @@ def preview(request):
         data = data[:max_bytes]
 
     content = data.decode("utf-8", errors="replace")
-    return JsonResponse(
-        {
-            "name": entry.name,
-            "content": content,
-            "truncated": truncated,
-        }
-    )
+    if truncated:
+        content += "\n\n--- ここまで表示しました ---"
+
+    return HttpResponse(content, content_type="text/plain; charset=utf-8")
 
 
 def _is_search_active(name_query, folder_query, regex_query, bulk_query):

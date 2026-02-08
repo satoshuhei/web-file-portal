@@ -45,57 +45,6 @@
             padding: 0 8vw 80px;
         }
 
-        .layout {
-            display: grid;
-            grid-template-columns: minmax(180px, 240px) 1fr;
-            gap: 20px;
-        }
-
-        .sidebar {
-            background: var(--surface);
-            border-radius: 16px;
-            border: 1px solid var(--line);
-            padding: 18px;
-            box-shadow: 0 20px 40px rgba(24, 24, 24, 0.06);
-        }
-
-        .sidebar h2 {
-            margin: 0 0 12px;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted);
-        }
-
-        .folder-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            gap: 8px;
-        }
-
-        .folder-list a {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            color: var(--ink);
-            padding: 6px 8px;
-            border-radius: 8px;
-        }
-
-        .folder-list a:hover {
-            background: var(--paper);
-        }
-
-        .folder-icon {
-            width: 10px;
-            height: 10px;
-            border-radius: 2px;
-            background: var(--folder);
-        }
-
         .panel {
             background: var(--surface);
             border-radius: 16px;
@@ -227,66 +176,6 @@
             text-decoration: none;
         }
 
-        .modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            background: rgba(24, 24, 24, 0.55);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 20;
-        }
-
-        .modal.open {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #fff;
-            border-radius: 16px;
-            width: min(920px, 95vw);
-            max-height: 80vh;
-            padding: 20px;
-            display: grid;
-            gap: 12px;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
-        .modal-close {
-            border: none;
-            background: var(--paper);
-            border-radius: 8px;
-            padding: 6px 10px;
-            cursor: pointer;
-        }
-
-        .preview-body {
-            background: var(--paper);
-            border-radius: 12px;
-            padding: 14px;
-            overflow: auto;
-            font-family: "Consolas", "Courier New", monospace;
-            white-space: pre-wrap;
-        }
-
-        @media (max-width: 900px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
-        }
-
         @media (max-width: 720px) {
             header,
             main {
@@ -303,23 +192,6 @@
     </header>
     <main>
         <div class="layout">
-            <aside class="sidebar">
-                <h2>フォルダ</h2>
-                <ul class="folder-list">
-                    {% if folders %}
-                        {% for folder in folders %}
-                            <li>
-                                <a href="?path={{ folder }}">
-                                    <span class="folder-icon"></span>
-                                    {{ folder }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    {% else %}
-                        <li>フォルダがありません。</li>
-                    {% endif %}
-                </ul>
-            </aside>
             <section class="panel">
                 <div class="breadcrumbs">
                     {% for name, path in breadcrumbs %}
@@ -387,7 +259,7 @@ report.pdf">{{ bulk_query }}</textarea>
                                         {% if entry.is_dir %}
                                             <a href="?path={{ entry.path }}">{{ entry.name }}</a>
                                         {% else %}
-                                            <a class="preview-link" href="#" data-path="{{ entry.path|urlencode }}" data-extension="{{ entry.extension }}">
+                                            <a class="preview-link" href="/files/preview?path={{ entry.path|urlencode }}" target="_blank" rel="noopener">
                                                 {{ entry.name }}
                                             </a>
                                         {% endif %}
@@ -411,71 +283,5 @@ report.pdf">{{ bulk_query }}</textarea>
             </section>
         </div>
     </main>
-    <div class="modal" id="preview-modal" aria-hidden="true">
-        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="preview-title">
-            <div class="modal-header">
-                <h3 id="preview-title">プレビュー</h3>
-                <button class="modal-close" type="button">閉じる</button>
-            </div>
-            <div class="preview-body" id="preview-body">読み込み中...</div>
-        </div>
-    </div>
-    <script>
-        const modal = document.getElementById("preview-modal");
-        const modalTitle = document.getElementById("preview-title");
-        const modalBody = document.getElementById("preview-body");
-        const closeButton = document.querySelector(".modal-close");
-
-        const openModal = () => {
-            modal.classList.add("open");
-            modal.setAttribute("aria-hidden", "false");
-        };
-
-        const closeModal = () => {
-            modal.classList.remove("open");
-            modal.setAttribute("aria-hidden", "true");
-        };
-
-        closeButton.addEventListener("click", closeModal);
-        modal.addEventListener("click", (event) => {
-            if (event.target === modal) {
-                closeModal();
-            }
-        });
-
-        document.querySelectorAll(".preview-link").forEach((link) => {
-            link.addEventListener("click", async (event) => {
-                event.preventDefault();
-                const path = link.dataset.path;
-                const extension = (link.dataset.extension || "").toLowerCase();
-                const name = link.textContent.trim();
-                const previewUrl = `/files/preview?path=${path}`;
-
-                if (extension === "pdf") {
-                    window.open(previewUrl, "_blank", "noopener");
-                    return;
-                }
-
-                modalTitle.textContent = `プレビュー: ${name}`;
-                modalBody.textContent = "読み込み中...";
-                openModal();
-
-                try {
-                    const response = await fetch(previewUrl);
-                    const data = await response.json();
-                    if (!response.ok) {
-                        modalBody.textContent = data.error || "読み込みに失敗しました。";
-                        return;
-                    }
-                    modalBody.textContent = data.content;
-                    if (data.truncated) {
-                        modalBody.textContent += "\n\n--- ここまで表示しました ---";
-                    }
-                } catch (error) {
-                    modalBody.textContent = "読み込みに失敗しました。";
-                }
-            });
-        });
-    </script>
 </body>
 </html>

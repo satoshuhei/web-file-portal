@@ -258,6 +258,26 @@
 ## 2026-02-09
 
 ### Instruction
+- Open text previews in a new tab and remove the left folder pane.
+
+### Agent Response
+- Served text previews as plain text and switched file links to open in a new tab.
+- Removed the folder sidebar and modal preview UI from the file list page.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Text preview still truncates at 200 KB.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response
