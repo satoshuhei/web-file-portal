@@ -197,6 +197,24 @@
 ## 2026-02-09
 
 ### Instruction
+- Place extension free input and extension checkboxes side by side.
+
+### Agent Response
+- Updated the bottom search row to render extension inputs in two columns.
+
+### Commands
+- None
+
+### Files Changed
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Move extension free input to the bottom row.
 - Stack date from/to in two lines inside the date block.
 
