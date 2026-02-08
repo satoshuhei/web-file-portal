@@ -48,6 +48,7 @@ class Command(BaseCommand):
                     "size_bytes": size_bytes,
                     "modified_at": modified_at,
                     "is_dir": is_dir,
+                    "owner": "system",
                 },
             )
 

@@ -84,6 +84,13 @@
             margin-bottom: 20px;
         }
 
+        .search-block {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
         .search textarea,
         .search input {
             width: 100%;
@@ -92,6 +99,20 @@
             border: 1px solid var(--line);
             background: #fff;
             font-family: inherit;
+        }
+
+        .checkboxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 8px;
+        }
+
+        .checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--ink);
         }
 
         .search label {
@@ -255,22 +276,49 @@
                 {% endif %}
                 <form method="get" class="search">
                     <input type="hidden" name="path" value="{{ current_path }}">
-                    <div>
+                    <div class="search-block">
                         <label for="name">ファイル名検索</label>
                         <input id="name" type="text" name="name" value="{{ name_query }}" placeholder="例: report">
                     </div>
-                    <div>
+                    <div class="search-block">
                         <label for="folder">フォルダ名検索</label>
                         <input id="folder" type="text" name="folder" value="{{ folder_query }}" placeholder="例: docs">
                     </div>
-                    <div>
+                    <div class="search-block">
                         <label for="regex">正規表現検索</label>
                         <input id="regex" type="text" name="regex" value="{{ regex_query }}" placeholder="例: ^readme.*\.txt$">
                     </div>
-                    <div>
+                    <div class="search-block">
                         <label for="bulk">一括検索（1行に1件）</label>
                         <textarea id="bulk" name="bulk" rows="3" placeholder="sample.txt
 report.pdf">{{ bulk_query }}</textarea>
+                    </div>
+                    <div class="search-block">
+                        <label for="owner">所有者</label>
+                        <input id="owner" type="text" name="owner" value="{{ owner_query }}" placeholder="例: system">
+                    </div>
+                    <div class="search-block">
+                        <label for="date_from">更新日 From</label>
+                        <input id="date_from" type="date" name="date_from" value="{{ date_from }}">
+                    </div>
+                    <div class="search-block">
+                        <label for="date_to">更新日 To</label>
+                        <input id="date_to" type="date" name="date_to" value="{{ date_to }}">
+                    </div>
+                    <div class="search-block">
+                        <label for="ext_free">拡張子（フリー入力）</label>
+                        <input id="ext_free" type="text" name="ext_free" value="{{ ext_free }}" placeholder="例: log, json">
+                    </div>
+                    <div class="search-block">
+                        <label>拡張子（チェック）</label>
+                        <div class="checkboxes">
+                            {% for ext in ext_options %}
+                                <label>
+                                    <input type="checkbox" name="ext" value="{{ ext }}" {% if ext in selected_ext %}checked{% endif %}>
+                                    .{{ ext }}
+                                </label>
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="search-actions">
                         <button class="button" type="submit">検索</button>
@@ -279,9 +327,9 @@ report.pdf">{{ bulk_query }}</textarea>
                 </form>
                 <div class="filters">
                     <div class="filter">現在の場所: <strong>{{ current_path|default:"ルート" }}</strong></div>
-                    <div class="filter">更新日: <strong>指定なし</strong></div>
-                    <div class="filter">拡張子: <strong>すべて</strong></div>
-                    <div class="filter">所有者: <strong>指定なし</strong></div>
+                    <div class="filter">更新日: <strong>{{ date_from|default:"指定なし" }} - {{ date_to|default:"指定なし" }}</strong></div>
+                    <div class="filter">拡張子: <strong>{{ ext_display|default:"すべて" }}</strong></div>
+                    <div class="filter">所有者: <strong>{{ owner_query|default:"指定なし" }}</strong></div>
                 </div>
                 <table>
                     <thead>

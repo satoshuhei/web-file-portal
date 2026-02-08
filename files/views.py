@@ -1,5 +1,6 @@
 import os
 import re
+from datetime import datetime, time
 from pathlib import Path
 
 from django.http import FileResponse, HttpResponse, JsonResponse
@@ -57,6 +58,42 @@ def _type_color_key(extension: str, is_dir: bool) -> str:
     if ext in {"png", "jpg", "jpeg", "gif", "bmp"}:
         return "image"
     return "default"
+
+
+def _parse_date_range(date_from: str, date_to: str):
+    tz = timezone.get_current_timezone()
+    start_dt = None
+    end_dt = None
+    error = None
+
+    if date_from:
+        try:
+            start_date = datetime.strptime(date_from, "%Y-%m-%d").date()
+            start_dt = timezone.make_aware(datetime.combine(start_date, time.min), tz)
+        except ValueError:
+            error = "更新日のFromが不正です。"
+
+    if date_to:
+        try:
+            end_date = datetime.strptime(date_to, "%Y-%m-%d").date()
+            end_dt = timezone.make_aware(datetime.combine(end_date, time.max), tz)
+        except ValueError:
+            error = "更新日のToが不正です。"
+
+    return start_dt, end_dt, error
+
+
+def _parse_extensions(free_text: str, selected: list[str]) -> set[str]:
+    values = set()
+    for item in selected:
+        value = item.strip().lstrip(".")
+        if value:
+            values.add(value.lower())
+    for part in re.split(r"[\s,]+", free_text or ""):
+        value = part.strip().lstrip(".")
+        if value:
+            values.add(value.lower())
+    return values
 
 
 def _storage_root() -> Path:
@@ -118,17 +155,36 @@ def index(request):
     folder_query = request.GET.get("folder", "").strip()
     regex_query = request.GET.get("regex", "").strip()
     bulk_query = request.GET.get("bulk", "").strip()
+    owner_query = request.GET.get("owner", "").strip()
+    date_from = request.GET.get("date_from", "").strip()
+    date_to = request.GET.get("date_to", "").strip()
+    selected_ext = request.GET.getlist("ext")
+    free_ext = request.GET.get("ext_free", "").strip()
+    ext_values = _parse_extensions(free_ext, selected_ext)
     prefix = f"{current_path}/" if current_path else ""
     entries = FileEntry.objects.all()
     if current_path:
         entries = entries.filter(relative_path__startswith=prefix)
+
+    if owner_query:
+        entries = entries.filter(owner__icontains=owner_query)
+    if ext_values:
+        entries = entries.filter(extension__in=sorted(ext_values))
+
+    start_dt, end_dt, date_error = _parse_date_range(date_from, date_to)
+    if start_dt and end_dt:
+        entries = entries.filter(modified_at__range=(start_dt, end_dt))
+    elif start_dt:
+        entries = entries.filter(modified_at__gte=start_dt)
+    elif end_dt:
+        entries = entries.filter(modified_at__lte=end_dt)
 
     search_active = _is_search_active(
         name_query,
         folder_query,
         regex_query,
         bulk_query,
-    )
+    ) or any([owner_query, date_from, date_to, ext_values])
 
     top_level = set()
     for entry in entries:
@@ -137,7 +193,7 @@ def index(request):
             top_level.add(top_segment)
     folders = sorted(top_level)
 
-    error = None
+    error = date_error
     rows = []
 
     if search_active:
@@ -221,6 +277,8 @@ def index(request):
 
     rows.sort(key=lambda item: (not item["is_dir"], item["name"].lower()))
 
+    ext_display = ", ".join(sorted(ext_values)) if ext_values else ""
+
     return render(
         request,
         "files/index.html",
@@ -234,6 +292,23 @@ def index(request):
             "folder_query": folder_query,
             "regex_query": regex_query,
             "bulk_query": bulk_query,
+            "owner_query": owner_query,
+            "date_from": date_from,
+            "date_to": date_to,
+            "ext_free": free_ext,
+            "ext_display": ext_display,
+            "selected_ext": set(ext_values),
+            "ext_options": [
+                "pdf",
+                "docx",
+                "xlsx",
+                "pptx",
+                "txt",
+                "csv",
+                "md",
+                "png",
+                "jpg",
+            ],
             "error": error,
         },
     )

@@ -33,6 +33,7 @@ class Command(BaseCommand):
         root = options["root"] or os.getenv("APP_LOCAL_STORAGE_ROOT", "C:\\data\\public")
         tenant_slug = options["tenant"] or os.getenv("APP_DEFAULT_TENANT", "default")
         delete_missing = not options["no_delete"]
+        default_owner = os.getenv("APP_DEFAULT_OWNER", "system")
 
         storage_root = Path(root)
         if not storage_root.exists():
@@ -64,6 +65,7 @@ class Command(BaseCommand):
                     full_path=dir_path,
                     is_dir=True,
                     existing=existing,
+                    default_owner=default_owner,
                     created=created,
                     updated=updated,
                 )
@@ -79,6 +81,7 @@ class Command(BaseCommand):
                     full_path=full_path,
                     is_dir=False,
                     existing=existing,
+                    default_owner=default_owner,
                     created=created,
                     updated=updated,
                 )
@@ -106,6 +109,7 @@ class Command(BaseCommand):
         full_path,
         is_dir,
         existing,
+        default_owner,
         created,
         updated,
     ):
@@ -127,6 +131,7 @@ class Command(BaseCommand):
                 size_bytes=size_bytes,
                 modified_at=modified_at,
                 is_dir=is_dir,
+                owner=default_owner,
             )
             created += 1
         else:
@@ -145,6 +150,9 @@ class Command(BaseCommand):
                 changed = True
             if entry.is_dir != is_dir:
                 entry.is_dir = is_dir
+                changed = True
+            if not entry.owner:
+                entry.owner = default_owner
                 changed = True
 
             if changed:

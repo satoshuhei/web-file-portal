@@ -16,6 +16,7 @@ class FileEntry(models.Model):
 	size_bytes = models.BigIntegerField(default=0)
 	modified_at = models.DateTimeField()
 	is_dir = models.BooleanField(default=False)
+	owner = models.CharField(max_length=100, blank=True, default="system")
 
 	class Meta:
 		ordering = ["-modified_at"]

@@ -298,6 +298,32 @@
 ## 2026-02-09
 
 ### Instruction
+- Add filters for modified date range, extension, and owner.
+- Provide extension selection via free input and checkboxes.
+
+### Agent Response
+- Added owner field to FileEntry with migrations and updated seed/sync logic.
+- Implemented date range, extension, and owner filtering in the files view.
+- Added filter UI inputs for date, extension, and owner.
+
+### Commands
+- .\.venv\Scripts\Activate.ps1; python manage.py makemigrations files; python manage.py migrate
+
+### Files Changed
+- core/management/commands/seed_sample_data.py
+- docs/agent_log.md
+- files/management/commands/sync_file_index.py
+- files/migrations/0002_fileentry_owner.py
+- files/models.py
+- files/templates/files/index.html
+- files/views.py
+
+### Notes / Risks
+- Owner defaults to "system" when not provided.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response
