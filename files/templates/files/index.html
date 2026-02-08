@@ -109,7 +109,7 @@
 <body>
     <header>
         <h1>ファイル一覧</h1>
-        <p>読み取り専用の画面です。フィルタと一覧はストレージアダプタに接続予定です。</p>
+        <p>読み取り専用の画面です。ファイル一覧はDBのインデックスから取得します。</p>
     </header>
     <main>
         <section class="panel">
@@ -130,27 +130,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Project-Overview.pdf</td>
-                        <td>PDF</td>
-                        <td>2026-02-08</td>
-                        <td>2.4 MB</td>
-                        <td><span class="badge">読み取り専用</span></td>
-                    </tr>
-                    <tr>
-                        <td>Design-Assets</td>
-                        <td>フォルダ</td>
-                        <td>2026-02-06</td>
-                        <td>18 件</td>
-                        <td><span class="badge">読み取り専用</span></td>
-                    </tr>
-                    <tr>
-                        <td>Release-Notes.txt</td>
-                        <td>テキスト</td>
-                        <td>2026-02-05</td>
-                        <td>24 KB</td>
-                        <td><span class="badge">読み取り専用</span></td>
-                    </tr>
+                    {% if entries %}
+                        {% for entry in entries %}
+                            <tr>
+                                <td>{{ entry.name }}</td>
+                                <td>{{ entry.type }}</td>
+                                <td>{{ entry.modified_at }}</td>
+                                <td>{{ entry.size }}</td>
+                                <td><span class="badge">{{ entry.status }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5">データがありません。同期バッチを実行してください。</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </section>

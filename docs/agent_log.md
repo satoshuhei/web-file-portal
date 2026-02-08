@@ -177,6 +177,26 @@
 ## 2026-02-09
 
 ### Instruction
+- Update the file list page to display database entries.
+
+### Agent Response
+- Loaded FileEntry records in the files view and formatted values for display.
+- Rendered database-backed rows in the files list template with an empty state.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response
