@@ -12,6 +12,7 @@
             --paper: #f7f5f2;
             --accent: #0e7c86;
             --surface: #ffffff;
+            --folder: #d28b2d;
         }
 
         * {
@@ -26,7 +27,7 @@
         }
 
         header {
-            padding: 48px 10vw 24px;
+            padding: 40px 8vw 16px;
         }
 
         h1 {
@@ -41,7 +42,58 @@
         }
 
         main {
-            padding: 0 10vw 80px;
+            padding: 0 8vw 80px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(180px, 240px) 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--line);
+            padding: 18px;
+            box-shadow: 0 20px 40px rgba(24, 24, 24, 0.06);
+        }
+
+        .sidebar h2 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .folder-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 8px;
+        }
+
+        .folder-list a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--ink);
+            padding: 6px 8px;
+            border-radius: 8px;
+        }
+
+        .folder-list a:hover {
+            background: var(--paper);
+        }
+
+        .folder-icon {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            background: var(--folder);
         }
 
         .panel {
@@ -50,6 +102,23 @@
             padding: 24px;
             border: 1px solid var(--line);
             box-shadow: 0 20px 40px rgba(24, 24, 24, 0.08);
+        }
+
+        .breadcrumbs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--muted);
+        }
+
+        .breadcrumbs a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .breadcrumbs span {
+            color: var(--muted);
         }
 
         .filters {
@@ -97,6 +166,12 @@
             font-size: 0.8rem;
         }
 
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
         @media (max-width: 720px) {
             header,
             main {
@@ -109,45 +184,82 @@
 <body>
     <header>
         <h1>ファイル一覧</h1>
-        <p>読み取り専用の画面です。ファイル一覧はDBのインデックスから取得します。</p>
+        <p>読み取り専用の画面です。フォルダをクリックして配下を参照できます。</p>
     </header>
     <main>
-        <section class="panel">
-            <div class="filters">
-                <div class="filter">フォルダ: <strong>すべて</strong></div>
-                <div class="filter">更新日: <strong>指定なし</strong></div>
-                <div class="filter">拡張子: <strong>すべて</strong></div>
-                <div class="filter">所有者: <strong>指定なし</strong></div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>名前</th>
-                        <th>種類</th>
-                        <th>更新日</th>
-                        <th>サイズ</th>
-                        <th>状態</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if entries %}
-                        {% for entry in entries %}
-                            <tr>
-                                <td>{{ entry.name }}</td>
-                                <td>{{ entry.type }}</td>
-                                <td>{{ entry.modified_at }}</td>
-                                <td>{{ entry.size }}</td>
-                                <td><span class="badge">{{ entry.status }}</span></td>
-                            </tr>
+        <div class="layout">
+            <aside class="sidebar">
+                <h2>フォルダ</h2>
+                <ul class="folder-list">
+                    {% if folders %}
+                        {% for folder in folders %}
+                            <li>
+                                <a href="?path={{ folder }}">
+                                    <span class="folder-icon"></span>
+                                    {{ folder }}
+                                </a>
+                            </li>
                         {% endfor %}
                     {% else %}
-                        <tr>
-                            <td colspan="5">データがありません。同期バッチを実行してください。</td>
-                        </tr>
+                        <li>フォルダがありません。</li>
                     {% endif %}
-                </tbody>
-            </table>
-        </section>
+                </ul>
+            </aside>
+            <section class="panel">
+                <div class="breadcrumbs">
+                    {% for name, path in breadcrumbs %}
+                        {% if path %}
+                            <a href="?path={{ path }}">{{ name }}</a>
+                        {% else %}
+                            <a href="?path=">{{ name }}</a>
+                        {% endif %}
+                        {% if not forloop.last %}
+                            <span>/</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="filters">
+                    <div class="filter">現在の場所: <strong>{{ current_path|default:"ルート" }}</strong></div>
+                    <div class="filter">更新日: <strong>指定なし</strong></div>
+                    <div class="filter">拡張子: <strong>すべて</strong></div>
+                    <div class="filter">所有者: <strong>指定なし</strong></div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>名前</th>
+                            <th>種類</th>
+                            <th>更新日</th>
+                            <th>サイズ</th>
+                            <th>状態</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if entries %}
+                            {% for entry in entries %}
+                                <tr>
+                                    <td>
+                                        {% if entry.is_dir %}
+                                            <a href="?path={{ entry.path }}">{{ entry.name }}</a>
+                                        {% else %}
+                                            {{ entry.name }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ entry.type }}</td>
+                                    <td>{{ entry.modified_at }}</td>
+                                    <td>{{ entry.size }}</td>
+                                    <td><span class="badge">{{ entry.status }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">データがありません。同期バッチを実行してください。</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </section>
+        </div>
     </main>
 </body>
 </html>

@@ -197,6 +197,26 @@
 ## 2026-02-09
 
 ### Instruction
+- Update the file list to show folders and allow navigation like Windows Explorer.
+
+### Agent Response
+- Added folder navigation with breadcrumbs and folder list sidebar.
+- Rendered directory links to show child folders and files.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Directory navigation relies on FileEntry rows created by the sync batch.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response
