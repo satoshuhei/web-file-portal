@@ -324,6 +324,29 @@
 ## 2026-02-09
 
 ### Instruction
+- Clarify regex scope as file-name-only and remove owner filters.
+- Align date range inputs and compact extension checkboxes.
+- Reduce search area height.
+
+### Agent Response
+- Removed owner search/filter fields and clarified regex scope in the UI.
+- Aligned date range inputs, tightened spacing, and compacted extension checkboxes.
+- Adjusted search layout spacing for a shorter search area.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Regex filtering still runs against file names only in the UI messaging.
+
+## 2026-02-09
+
+### Instruction
 - Commit code changes with a descriptive message after modifications.
 
 ### Agent Response

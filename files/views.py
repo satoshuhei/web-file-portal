@@ -155,7 +155,6 @@ def index(request):
     folder_query = request.GET.get("folder", "").strip()
     regex_query = request.GET.get("regex", "").strip()
     bulk_query = request.GET.get("bulk", "").strip()
-    owner_query = request.GET.get("owner", "").strip()
     date_from = request.GET.get("date_from", "").strip()
     date_to = request.GET.get("date_to", "").strip()
     selected_ext = request.GET.getlist("ext")
@@ -166,8 +165,6 @@ def index(request):
     if current_path:
         entries = entries.filter(relative_path__startswith=prefix)
 
-    if owner_query:
-        entries = entries.filter(owner__icontains=owner_query)
     if ext_values:
         entries = entries.filter(extension__in=sorted(ext_values))
 
@@ -184,7 +181,7 @@ def index(request):
         folder_query,
         regex_query,
         bulk_query,
-    ) or any([owner_query, date_from, date_to, ext_values])
+    ) or any([date_from, date_to, ext_values])
 
     top_level = set()
     for entry in entries:
@@ -292,7 +289,6 @@ def index(request):
             "folder_query": folder_query,
             "regex_query": regex_query,
             "bulk_query": bulk_query,
-            "owner_query": owner_query,
             "date_from": date_from,
             "date_to": date_to,
             "ext_free": free_ext,

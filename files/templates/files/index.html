@@ -74,27 +74,27 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         .search {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
         }
 
         .search-block {
             background: #fff;
             border: 1px solid var(--line);
             border-radius: 12px;
-            padding: 12px;
+            padding: 8px;
         }
 
         .search textarea,
         .search input {
             width: 100%;
-            padding: 10px 12px;
+            padding: 6px 8px;
             border-radius: 10px;
             border: 1px solid var(--line);
             background: #fff;
@@ -103,23 +103,23 @@
 
         .checkboxes {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 6px;
         }
 
         .checkboxes label {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
+            gap: 4px;
+            font-size: 0.8rem;
             color: var(--ink);
         }
 
         .search label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--muted);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .search-actions {
@@ -152,6 +152,24 @@
             padding: 10px 12px;
             border-radius: 8px;
             margin-bottom: 12px;
+        }
+
+        .note {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-range span {
+            color: var(--muted);
+            font-size: 0.8rem;
         }
 
         .filter {
@@ -287,6 +305,7 @@
                     <div class="search-block">
                         <label for="regex">正規表現検索</label>
                         <input id="regex" type="text" name="regex" value="{{ regex_query }}" placeholder="例: ^readme.*\.txt$">
+                        <div class="note">※ファイル名のみ対象</div>
                     </div>
                     <div class="search-block">
                         <label for="bulk">一括検索（1行に1件）</label>
@@ -294,16 +313,12 @@
 report.pdf">{{ bulk_query }}</textarea>
                     </div>
                     <div class="search-block">
-                        <label for="owner">所有者</label>
-                        <input id="owner" type="text" name="owner" value="{{ owner_query }}" placeholder="例: system">
-                    </div>
-                    <div class="search-block">
-                        <label for="date_from">更新日 From</label>
-                        <input id="date_from" type="date" name="date_from" value="{{ date_from }}">
-                    </div>
-                    <div class="search-block">
-                        <label for="date_to">更新日 To</label>
-                        <input id="date_to" type="date" name="date_to" value="{{ date_to }}">
+                        <label>更新日</label>
+                        <div class="date-range">
+                            <input id="date_from" type="date" name="date_from" value="{{ date_from }}">
+                            <span>〜</span>
+                            <input id="date_to" type="date" name="date_to" value="{{ date_to }}">
+                        </div>
                     </div>
                     <div class="search-block">
                         <label for="ext_free">拡張子（フリー入力）</label>
@@ -329,7 +344,6 @@ report.pdf">{{ bulk_query }}</textarea>
                     <div class="filter">現在の場所: <strong>{{ current_path|default:"ルート" }}</strong></div>
                     <div class="filter">更新日: <strong>{{ date_from|default:"指定なし" }} - {{ date_to|default:"指定なし" }}</strong></div>
                     <div class="filter">拡張子: <strong>{{ ext_display|default:"すべて" }}</strong></div>
-                    <div class="filter">所有者: <strong>{{ owner_query|default:"指定なし" }}</strong></div>
                 </div>
                 <table>
                     <thead>
