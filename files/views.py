@@ -431,3 +431,18 @@ def download_bulk(request):
         return JsonResponse({"error": "no files"}, status=404)
 
     return _zip_response(filtered, "search-results.zip")
+
+
+def download_selected(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "method not allowed"}, status=405)
+
+    selected = request.POST.getlist("selected")
+    if not selected:
+        return JsonResponse({"error": "no files selected"}, status=400)
+
+    entries = list(FileEntry.objects.filter(relative_path__in=selected))
+    if not entries:
+        return JsonResponse({"error": "file not found"}, status=404)
+
+    return _zip_response(entries, "selected-results.zip")

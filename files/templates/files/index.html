@@ -385,57 +385,67 @@ report.pdf">{{ bulk_query }}</textarea>
                     <div class="filter">更新日: <strong>{{ date_from|default:"指定なし" }} - {{ date_to|default:"指定なし" }}</strong></div>
                     <div class="filter">拡張子: <strong>{{ ext_display|default:"すべて" }}</strong></div>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>名前</th>
-                            {% if search_active %}
-                                <th>パス</th>
-                            {% endif %}
-                            <th>種類</th>
-                            <th>更新日</th>
-                            <th>サイズ</th>
-                            <th>DL</th>
-                            <th>状態</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if entries %}
-                            {% for entry in entries %}
-                                <tr>
-                                    <td>
-                                        {% if entry.is_dir %}
-                                            <a href="?path={{ entry.path }}">{{ entry.name }}</a>
-                                        {% else %}
-                                            <a class="preview-link" href="/files/preview?path={{ entry.path|urlencode }}" target="_blank" rel="noopener">
-                                                {{ entry.name }}
-                                            </a>
-                                        {% endif %}
-                                    </td>
-                                    {% if search_active %}
-                                        <td>{{ entry.display_path }}</td>
-                                    {% endif %}
-                                    <td>
-                                        <span class="type-label">
-                                            <span class="type-dot {{ entry.type_color }}"></span>
-                                            {{ entry.type }}
-                                        </span>
-                                    </td>
-                                    <td>{{ entry.modified_at }}</td>
-                                    <td>{{ entry.size }}</td>
-                                    <td>
-                                        <a class="download-link" href="/files/download?path={{ entry.path|urlencode }}">DL</a>
-                                    </td>
-                                    <td><span class="badge">{{ entry.status }}</span></td>
-                                </tr>
-                            {% endfor %}
-                        {% else %}
+                <form method="post" action="/files/download-selected">
+                    {% csrf_token %}
+                    <div class="search-actions">
+                        <button class="button button-secondary" type="submit">選択をZIP</button>
+                    </div>
+                    <table>
+                        <thead>
                             <tr>
-                                <td colspan="5">データがありません。同期バッチを実行してください。</td>
+                                <th>選択</th>
+                                <th>名前</th>
+                                {% if search_active %}
+                                    <th>パス</th>
+                                {% endif %}
+                                <th>種類</th>
+                                <th>更新日</th>
+                                <th>サイズ</th>
+                                <th>DL</th>
+                                <th>状態</th>
                             </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% if entries %}
+                                {% for entry in entries %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="selected" value="{{ entry.path|urlencode }}">
+                                        </td>
+                                        <td>
+                                            {% if entry.is_dir %}
+                                                <a href="?path={{ entry.path }}">{{ entry.name }}</a>
+                                            {% else %}
+                                                <a class="preview-link" href="/files/preview?path={{ entry.path|urlencode }}" target="_blank" rel="noopener">
+                                                    {{ entry.name }}
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                        {% if search_active %}
+                                            <td>{{ entry.display_path }}</td>
+                                        {% endif %}
+                                        <td>
+                                            <span class="type-label">
+                                                <span class="type-dot {{ entry.type_color }}"></span>
+                                                {{ entry.type }}
+                                            </span>
+                                        </td>
+                                        <td>{{ entry.modified_at }}</td>
+                                        <td>{{ entry.size }}</td>
+                                        <td>
+                                            <a class="download-link" href="/files/download?path={{ entry.path|urlencode }}">DL</a>
+                                        </td>
+                                        <td><span class="badge">{{ entry.status }}</span></td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="6">データがありません。同期バッチを実行してください。</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </form>
             </section>
         </div>
     </main>

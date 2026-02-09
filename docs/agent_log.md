@@ -218,6 +218,27 @@
 ## 2026-02-09
 
 ### Instruction
+- Add bulk download for selected search result items.
+
+### Agent Response
+- Added a selected-items ZIP download endpoint.
+- Added selection checkboxes and a ZIP action in the file list.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/urls.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Selected ZIP bundles files and folders into a single archive.
+
+## 2026-02-09
+
+### Instruction
 - Implement processing log persistence for system-side jobs.
 
 ### Agent Response

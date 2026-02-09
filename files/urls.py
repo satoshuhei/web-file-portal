@@ -7,4 +7,5 @@ urlpatterns = [
     path("preview", views.preview, name="files-preview"),
     path("download", views.download, name="files-download"),
     path("download-bulk", views.download_bulk, name="files-download-bulk"),
+    path("download-selected", views.download_selected, name="files-download-selected"),
 ]
