@@ -207,6 +207,13 @@
             border-collapse: collapse;
         }
 
+        .results {
+            max-height: 420px;
+            overflow: auto;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+        }
+
         th,
         td {
             text-align: left;
@@ -390,7 +397,8 @@ report.pdf">{{ bulk_query }}</textarea>
                     <div class="search-actions">
                         <button class="button button-secondary" type="submit">選択をZIP</button>
                     </div>
-                    <table>
+                    <div class="results">
+                        <table>
                         <thead>
                             <tr>
                                 <th>選択</th>
@@ -444,7 +452,8 @@ report.pdf">{{ bulk_query }}</textarea>
                                 </tr>
                             {% endif %}
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </form>
             </section>
         </div>

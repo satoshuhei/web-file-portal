@@ -197,6 +197,24 @@
 ## 2026-02-09
 
 ### Instruction
+- Add a scrollbar to the search results area.
+
+### Agent Response
+- Wrapped the results table in a scrollable container.
+
+### Commands
+- None
+
+### Files Changed
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Add download support for search results.
 
 ### Agent Response
