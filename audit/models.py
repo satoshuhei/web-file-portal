@@ -18,3 +18,29 @@ class AuditLog(models.Model):
 
 	def __str__(self) -> str:
 		return f"{self.action} by {self.actor}"
+
+
+class ProcessLog(models.Model):
+	tenant = models.ForeignKey(
+		"tenants.Tenant",
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name="process_logs",
+	)
+	job_name = models.CharField(max_length=120)
+	status = models.CharField(max_length=30)
+	message = models.TextField(blank=True)
+	started_at = models.DateTimeField()
+	finished_at = models.DateTimeField(null=True, blank=True)
+	created_count = models.IntegerField(default=0)
+	updated_count = models.IntegerField(default=0)
+	deleted_count = models.IntegerField(default=0)
+	scanned_count = models.IntegerField(default=0)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ["-created_at"]
+
+	def __str__(self) -> str:
+		return f"{self.job_name} ({self.status})"

@@ -218,6 +218,27 @@
 ## 2026-02-09
 
 ### Instruction
+- Implement processing log persistence for system-side jobs.
+
+### Agent Response
+- Added ProcessLog model and migration.
+- Logged sync_file_index runs with status and counts.
+
+### Commands
+- .\.venv\Scripts\Activate.ps1; python manage.py makemigrations audit; python manage.py migrate
+
+### Files Changed
+- audit/models.py
+- audit/migrations/0002_processlog.py
+- files/management/commands/sync_file_index.py
+- docs/agent_log.md
+
+### Notes / Risks
+- Only sync_file_index writes process logs so far.
+
+## 2026-02-09
+
+### Instruction
 - Try running the app with Waitress on this PC.
 
 ### Agent Response

@@ -5,6 +5,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from audit.models import ProcessLog
 from files.models import FileEntry
 from tenants.models import Tenant
 
@@ -34,15 +35,32 @@ class Command(BaseCommand):
         tenant_slug = options["tenant"] or os.getenv("APP_DEFAULT_TENANT", "default")
         delete_missing = not options["no_delete"]
         default_owner = os.getenv("APP_DEFAULT_OWNER", "system")
+        started_at = timezone.now()
+        process_log = None
 
         storage_root = Path(root)
         if not storage_root.exists():
+            ProcessLog.objects.create(
+                job_name="sync_file_index",
+                status="failed",
+                message=f"Storage root not found: {storage_root}",
+                started_at=started_at,
+                finished_at=timezone.now(),
+            )
             self.stderr.write(self.style.ERROR(f"Storage root not found: {storage_root}"))
             return
 
         tenant, _ = Tenant.objects.get_or_create(
             slug=tenant_slug,
             defaults={"name": tenant_slug},
+        )
+
+        process_log = ProcessLog.objects.create(
+            tenant=tenant,
+            job_name="sync_file_index",
+            status="running",
+            message=f"root={storage_root}",
+            started_at=started_at,
         )
 
         existing = {
@@ -53,54 +71,80 @@ class Command(BaseCommand):
         created = 0
         updated = 0
 
-        for dirpath, dirnames, filenames in os.walk(storage_root):
-            dir_path = Path(dirpath)
-            relative_dir = dir_path.relative_to(storage_root)
-            if relative_dir != Path("."):
-                rel_path = str(relative_dir).replace("\\", "/")
-                seen.add(rel_path)
-                created, updated = self._upsert_entry(
-                    tenant=tenant,
-                    rel_path=rel_path,
-                    full_path=dir_path,
-                    is_dir=True,
-                    existing=existing,
-                    default_owner=default_owner,
-                    created=created,
-                    updated=updated,
+        try:
+            for dirpath, dirnames, filenames in os.walk(storage_root):
+                dir_path = Path(dirpath)
+                relative_dir = dir_path.relative_to(storage_root)
+                if relative_dir != Path("."):
+                    rel_path = str(relative_dir).replace("\\", "/")
+                    seen.add(rel_path)
+                    created, updated = self._upsert_entry(
+                        tenant=tenant,
+                        rel_path=rel_path,
+                        full_path=dir_path,
+                        is_dir=True,
+                        existing=existing,
+                        default_owner=default_owner,
+                        created=created,
+                        updated=updated,
+                    )
+
+                for name in filenames:
+                    full_path = dir_path / name
+                    relative_file = full_path.relative_to(storage_root)
+                    rel_path = str(relative_file).replace("\\", "/")
+                    seen.add(rel_path)
+                    created, updated = self._upsert_entry(
+                        tenant=tenant,
+                        rel_path=rel_path,
+                        full_path=full_path,
+                        is_dir=False,
+                        existing=existing,
+                        default_owner=default_owner,
+                        created=created,
+                        updated=updated,
+                    )
+
+            deleted = 0
+            if delete_missing:
+                missing = [
+                    entry_id
+                    for path, entry_id in ((p, e.id) for p, e in existing.items())
+                    if path not in seen
+                ]
+                if missing:
+                    deleted, _ = FileEntry.objects.filter(id__in=missing).delete()
+
+            process_log.status = "success"
+            process_log.finished_at = timezone.now()
+            process_log.created_count = created
+            process_log.updated_count = updated
+            process_log.deleted_count = deleted
+            process_log.scanned_count = len(seen)
+            process_log.message = "ok"
+            process_log.save()
+
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Sync complete. Created: {created}, Updated: {updated}, Deleted: {deleted}."
                 )
-
-            for name in filenames:
-                full_path = dir_path / name
-                relative_file = full_path.relative_to(storage_root)
-                rel_path = str(relative_file).replace("\\", "/")
-                seen.add(rel_path)
-                created, updated = self._upsert_entry(
-                    tenant=tenant,
-                    rel_path=rel_path,
-                    full_path=full_path,
-                    is_dir=False,
-                    existing=existing,
-                    default_owner=default_owner,
-                    created=created,
-                    updated=updated,
-                )
-
-        deleted = 0
-        if delete_missing:
-            missing = [
-                entry_id
-                for path, entry_id in ((p, e.id) for p, e in existing.items())
-                if path not in seen
-            ]
-            if missing:
-                deleted, _ = FileEntry.objects.filter(id__in=missing).delete()
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Sync complete. Created: {created}, Updated: {updated}, Deleted: {deleted}."
             )
-        )
+        except Exception as exc:
+            if process_log is None:
+                ProcessLog.objects.create(
+                    tenant=tenant,
+                    job_name="sync_file_index",
+                    status="failed",
+                    message=str(exc),
+                    started_at=started_at,
+                    finished_at=timezone.now(),
+                )
+            else:
+                process_log.status = "failed"
+                process_log.finished_at = timezone.now()
+                process_log.message = str(exc)
+                process_log.save()
+            raise
 
     def _upsert_entry(
         self,
