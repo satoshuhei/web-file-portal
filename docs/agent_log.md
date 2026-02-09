@@ -197,6 +197,24 @@
 ## 2026-02-09
 
 ### Instruction
+- Try running the app with Waitress on this PC.
+
+### Agent Response
+- Installed Waitress and updated requirements.txt.
+
+### Commands
+- .\.venv\Scripts\Activate.ps1; python -m pip freeze > requirements.txt
+
+### Files Changed
+- requirements.txt
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Keep extension checkboxes and labels on the same line.
 
 ### Agent Response
