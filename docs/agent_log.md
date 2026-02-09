@@ -197,6 +197,24 @@
 ## 2026-02-09
 
 ### Instruction
+- Create a markdown guide for Windows Server 2022 + IIS + Waitress setup.
+
+### Agent Response
+- Added setup guide at doc/setup-iis.md.
+
+### Commands
+- None
+
+### Files Changed
+- doc/setup-iis.md
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Add a scrollbar to the search results area.
 
 ### Agent Response
