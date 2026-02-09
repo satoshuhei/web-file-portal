@@ -282,6 +282,12 @@
             text-decoration: none;
         }
 
+        .download-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
         @media (max-width: 720px) {
             header,
             main {
@@ -369,6 +375,9 @@ report.pdf">{{ bulk_query }}</textarea>
                     <div class="search-actions">
                         <button class="button" type="submit">検索</button>
                         <a class="button button-secondary" href="?path={{ current_path }}">クリア</a>
+                        {% if search_active %}
+                            <a class="button button-secondary" href="/files/download-bulk?{{ download_query }}">検索結果をZIP</a>
+                        {% endif %}
                     </div>
                 </form>
                 <div class="filters">
@@ -386,6 +395,7 @@ report.pdf">{{ bulk_query }}</textarea>
                             <th>種類</th>
                             <th>更新日</th>
                             <th>サイズ</th>
+                            <th>DL</th>
                             <th>状態</th>
                         </tr>
                     </thead>
@@ -413,6 +423,9 @@ report.pdf">{{ bulk_query }}</textarea>
                                     </td>
                                     <td>{{ entry.modified_at }}</td>
                                     <td>{{ entry.size }}</td>
+                                    <td>
+                                        <a class="download-link" href="/files/download?path={{ entry.path|urlencode }}">DL</a>
+                                    </td>
                                     <td><span class="badge">{{ entry.status }}</span></td>
                                 </tr>
                             {% endfor %}

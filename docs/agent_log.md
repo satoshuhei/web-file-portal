@@ -197,6 +197,27 @@
 ## 2026-02-09
 
 ### Instruction
+- Add download support for search results.
+
+### Agent Response
+- Added individual download links and bulk ZIP download for search results.
+- Added download endpoints for files and bulk ZIP generation.
+
+### Commands
+- None
+
+### Files Changed
+- files/views.py
+- files/urls.py
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- Bulk ZIP is generated on the fly and may be slow for large results.
+
+## 2026-02-09
+
+### Instruction
 - Try running the app with Waitress on this PC.
 
 ### Agent Response

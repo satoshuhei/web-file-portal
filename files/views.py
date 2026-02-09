@@ -1,7 +1,10 @@
 import os
 import re
+import tempfile
+import zipfile
 from datetime import datetime, time
 from pathlib import Path
+from urllib.parse import urlencode
 
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -96,6 +99,102 @@ def _parse_extensions(free_text: str, selected: list[str]) -> set[str]:
     return values
 
 
+def _iter_zip_members(entries):
+    storage_root = _storage_root().resolve()
+    seen = set()
+    for entry in entries:
+        full_path = _resolve_path(entry.relative_path)
+        if full_path is None:
+            continue
+        if entry.is_dir:
+            if not full_path.exists():
+                continue
+            for dirpath, _, filenames in os.walk(full_path):
+                for filename in filenames:
+                    file_path = Path(dirpath) / filename
+                    try:
+                        rel = file_path.resolve().relative_to(storage_root)
+                    except ValueError:
+                        continue
+                    arcname = rel.as_posix()
+                    if arcname in seen:
+                        continue
+                    seen.add(arcname)
+                    yield file_path, arcname
+        else:
+            if not full_path.exists():
+                continue
+            arcname = entry.relative_path
+            if arcname in seen:
+                continue
+            seen.add(arcname)
+            yield full_path, arcname
+
+
+def _zip_response(entries, filename: str):
+    temp = tempfile.SpooledTemporaryFile(max_size=10 * 1024 * 1024)
+    with zipfile.ZipFile(temp, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path, arcname in _iter_zip_members(entries):
+            archive.write(file_path, arcname)
+    temp.seek(0)
+    return FileResponse(temp, as_attachment=True, filename=filename)
+
+
+def _apply_filters(
+    entries,
+    name_query,
+    folder_query,
+    regex_query,
+    bulk_query,
+    date_from,
+    date_to,
+    ext_values,
+):
+    error = None
+    start_dt, end_dt, date_error = _parse_date_range(date_from, date_to)
+    if date_error:
+        error = date_error
+
+    if name_query:
+        entries = entries.filter(name__icontains=name_query)
+    if folder_query:
+        entries = entries.filter(is_dir=True, name__icontains=folder_query)
+    if ext_values:
+        entries = entries.filter(extension__in=sorted(ext_values))
+    if start_dt and end_dt:
+        entries = entries.filter(modified_at__range=(start_dt, end_dt))
+    elif start_dt:
+        entries = entries.filter(modified_at__gte=start_dt)
+    elif end_dt:
+        entries = entries.filter(modified_at__lte=end_dt)
+
+    filtered = list(entries)
+
+    if bulk_query:
+        terms = [term.strip() for term in bulk_query.splitlines() if term.strip()]
+        if terms:
+            filtered = [
+                entry
+                for entry in filtered
+                if any(term.lower() in entry.name.lower() for term in terms)
+            ]
+
+    if regex_query:
+        try:
+            pattern = re.compile(regex_query, re.IGNORECASE)
+        except re.error:
+            pattern = None
+            error = "正規表現が無効です。"
+        if pattern is not None:
+            filtered = [
+                entry
+                for entry in filtered
+                if pattern.search(entry.name)
+            ]
+
+    return filtered, error
+
+
 def _storage_root() -> Path:
     root = os.getenv("APP_LOCAL_STORAGE_ROOT", "C:\\data\\public")
     return Path(root)
@@ -165,17 +264,6 @@ def index(request):
     if current_path:
         entries = entries.filter(relative_path__startswith=prefix)
 
-    if ext_values:
-        entries = entries.filter(extension__in=sorted(ext_values))
-
-    start_dt, end_dt, date_error = _parse_date_range(date_from, date_to)
-    if start_dt and end_dt:
-        entries = entries.filter(modified_at__range=(start_dt, end_dt))
-    elif start_dt:
-        entries = entries.filter(modified_at__gte=start_dt)
-    elif end_dt:
-        entries = entries.filter(modified_at__lte=end_dt)
-
     search_active = _is_search_active(
         name_query,
         folder_query,
@@ -183,51 +271,20 @@ def index(request):
         bulk_query,
     ) or any([date_from, date_to, ext_values])
 
-    top_level = set()
-    for entry in entries:
-        top_segment = entry.relative_path.split("/")[0]
-        if top_segment:
-            top_level.add(top_segment)
-    folders = sorted(top_level)
-
-    error = date_error
+    error = None
     rows = []
 
     if search_active:
-        filtered = list(entries)
-        if name_query:
-            filtered = [
-                entry
-                for entry in filtered
-                if name_query.lower() in entry.name.lower()
-            ]
-        if folder_query:
-            filtered = [
-                entry
-                for entry in filtered
-                if entry.is_dir and folder_query.lower() in entry.name.lower()
-            ]
-        if bulk_query:
-            terms = [term.strip() for term in bulk_query.splitlines() if term.strip()]
-            if terms:
-                filtered = [
-                    entry
-                    for entry in filtered
-                    if any(term.lower() in entry.name.lower() for term in terms)
-                ]
-        if regex_query:
-            try:
-                pattern = re.compile(regex_query, re.IGNORECASE)
-            except re.error:
-                pattern = None
-                error = "正規表現が無効です。"
-            if pattern is not None:
-                filtered = [
-                    entry
-                    for entry in filtered
-                    if pattern.search(entry.name)
-                    or pattern.search(entry.relative_path)
-                ]
+        filtered, error = _apply_filters(
+            entries,
+            name_query,
+            folder_query,
+            regex_query,
+            bulk_query,
+            date_from,
+            date_to,
+            ext_values,
+        )
 
         for entry in filtered:
             is_dir = entry.is_dir
@@ -275,13 +332,13 @@ def index(request):
     rows.sort(key=lambda item: (not item["is_dir"], item["name"].lower()))
 
     ext_display = ", ".join(sorted(ext_values)) if ext_values else ""
+    download_query = request.GET.urlencode()
 
     return render(
         request,
         "files/index.html",
         {
             "entries": rows,
-            "folders": folders,
             "current_path": current_path,
             "breadcrumbs": _build_breadcrumbs(current_path),
             "search_active": search_active,
@@ -294,6 +351,7 @@ def index(request):
             "ext_free": free_ext,
             "ext_display": ext_display,
             "selected_ext": set(ext_values),
+            "download_query": download_query,
             "ext_options": [
                 "pdf",
                 "docx",
@@ -308,3 +366,68 @@ def index(request):
             "error": error,
         },
     )
+
+
+def download(request):
+    rel_path = _normalize_path(request.GET.get("path", ""))
+    if not rel_path:
+        return JsonResponse({"error": "path is required"}, status=400)
+
+    entry = FileEntry.objects.filter(relative_path=rel_path).first()
+    if entry is None:
+        return JsonResponse({"error": "file not found"}, status=404)
+
+    full_path = _resolve_path(rel_path)
+    if full_path is None or not full_path.exists():
+        return JsonResponse({"error": "file not found"}, status=404)
+
+    if entry.is_dir:
+        filename = f"{entry.name}.zip"
+        return _zip_response([entry], filename)
+
+    return FileResponse(
+        full_path.open("rb"),
+        as_attachment=True,
+        filename=entry.name,
+    )
+
+
+def download_bulk(request):
+    name_query = request.GET.get("name", "").strip()
+    folder_query = request.GET.get("folder", "").strip()
+    regex_query = request.GET.get("regex", "").strip()
+    bulk_query = request.GET.get("bulk", "").strip()
+    date_from = request.GET.get("date_from", "").strip()
+    date_to = request.GET.get("date_to", "").strip()
+    selected_ext = request.GET.getlist("ext")
+    free_ext = request.GET.get("ext_free", "").strip()
+    ext_values = _parse_extensions(free_ext, selected_ext)
+
+    search_active = _is_search_active(
+        name_query,
+        folder_query,
+        regex_query,
+        bulk_query,
+    ) or any([date_from, date_to, ext_values])
+
+    if not search_active:
+        return JsonResponse({"error": "search query required"}, status=400)
+
+    entries = FileEntry.objects.all()
+    filtered, error = _apply_filters(
+        entries,
+        name_query,
+        folder_query,
+        regex_query,
+        bulk_query,
+        date_from,
+        date_to,
+        ext_values,
+    )
+    if error:
+        return JsonResponse({"error": error}, status=400)
+
+    if not filtered:
+        return JsonResponse({"error": "no files"}, status=404)
+
+    return _zip_response(filtered, "search-results.zip")
