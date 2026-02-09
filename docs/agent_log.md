@@ -239,6 +239,24 @@
 ## 2026-02-09
 
 ### Instruction
+- Change the page title to "ファイル検索とDL".
+
+### Agent Response
+- Updated the files page title and header text.
+
+### Commands
+- None
+
+### Files Changed
+- files/templates/files/index.html
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-09
+
+### Instruction
 - Implement processing log persistence for system-side jobs.
 
 ### Agent Response
