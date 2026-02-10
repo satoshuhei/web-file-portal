@@ -1,0 +1,24 @@
+@startuml
+actor "運用者" as Ops
+participant "Django command\n(sync_file_index)" as Cmd
+participant "Local FS" as FS
+database "SQLite" as DB
+
+Ops -> Cmd : sync_file_index 実行
+Cmd -> FS : ルートパス検証
+alt ルートなし
+  Cmd -> DB : ProcessLog作成(status=failed)
+  Cmd --> Ops : エラー出力
+else ルートあり
+  Cmd -> DB : Tenant取得/作成
+  Cmd -> FS : ディレクトリ走査
+  Cmd -> DB : FileEntry作成/更新/削除
+  alt 例外発生
+    Cmd -> DB : ProcessLog更新(status=failed)
+    Cmd --> Ops : 例外終了
+  else 正常終了
+    Cmd -> DB : ProcessLog更新(status=success)
+    Cmd --> Ops : 完了メッセージ
+  end
+end
+@enduml

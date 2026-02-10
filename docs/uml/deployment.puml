@@ -1,0 +1,21 @@
+@startuml
+node "Client" as Client {
+  artifact "Browser" as Browser
+}
+
+node "App Server" as App {
+  artifact "Django App" as Django
+}
+
+node "DB" as DBNode {
+  artifact "SQLite" as SQLite
+}
+
+node "File Storage" as Storage {
+  artifact "Local FS" as LocalFS
+}
+
+Browser --> Django : HTTP/HTTPS
+Django --> SQLite : DB Access
+Django --> LocalFS : File Read
+@enduml

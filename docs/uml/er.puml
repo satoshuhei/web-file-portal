@@ -1,0 +1,55 @@
+@startuml
+entity "TENANT" as TENANT {
+  * id : int <<PK>>
+  --
+  name : varchar
+  slug : varchar <<UQ>>
+  is_active : bool
+  created_at : datetime
+}
+
+entity "FILE_ENTRY" as FILE_ENTRY {
+  * id : int <<PK>>
+  --
+  file_id : uuid <<UQ>>
+  tenant_id : int <<FK>>
+  name : varchar
+  relative_path : varchar
+  extension : varchar
+  size_bytes : bigint
+  modified_at : datetime
+  is_dir : bool
+  owner : varchar
+}
+
+entity "AUDIT_LOG" as AUDIT_LOG {
+  * id : int <<PK>>
+  --
+  tenant_id : int <<FK>>
+  action : varchar
+  actor : varchar
+  target : varchar
+  detail : text
+  created_at : datetime
+}
+
+entity "PROCESS_LOG" as PROCESS_LOG {
+  * id : int <<PK>>
+  --
+  tenant_id : int <<FK, NULL>>
+  job_name : varchar
+  status : varchar
+  message : text
+  started_at : datetime
+  finished_at : datetime
+  created_count : int
+  updated_count : int
+  deleted_count : int
+  scanned_count : int
+  created_at : datetime
+}
+
+TENANT ||--o{ FILE_ENTRY
+TENANT ||--o{ AUDIT_LOG
+TENANT ||--o{ PROCESS_LOG
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+skinparam componentStyle rectangle
+
+component "Web UI\n(HTML Templates)" as UI
+component "Django Views" as Views
+component "Django ORM" as ORM
+component "SQLite" as DB
+component "Local Storage" as FS
+component "Batch Command\n(sync_file_index)" as Batch
+
+UI --> Views : HTTP
+Views --> ORM : Query
+Views --> FS : File read
+ORM --> DB
+Batch --> FS : Scan
+Batch --> ORM : Upsert
+@enduml

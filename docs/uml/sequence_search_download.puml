@@ -1,0 +1,29 @@
+@startuml
+actor User
+participant "Browser" as Browser
+participant "Django (files.views)" as App
+database "SQLite" as DB
+participant "Local FS" as FS
+
+User -> Browser : 検索条件を入力
+Browser -> App : GET /files/?name=...&date_from=...
+App -> DB : FileEntry を検索
+DB --> App : 検索結果
+App --> Browser : 一覧HTML
+
+User -> Browser : 「検索結果をZIP」クリック
+Browser -> App : GET /files/download-bulk?...(同条件)
+alt 検索条件なし
+	App --> Browser : 400 (search query required)
+else 対象なし
+	App -> DB : 再検索
+	DB --> App : 0件
+	App --> Browser : 404 (no files)
+else 正常
+	App -> DB : 再検索
+	DB --> App : 対象FileEntry
+	App -> FS : 対象ファイル読み出し
+	FS --> App : データ
+	App --> Browser : ZIPストリーム
+end
+@enduml

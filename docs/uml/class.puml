@@ -1,0 +1,51 @@
+@startuml
+class Tenant {
+  +id: integer
+  +name: string
+  +slug: string
+  +is_active: boolean
+  +created_at: datetime
+}
+
+class FileEntry {
+  +id: integer
+  +file_id: uuid
+  +tenant_id: integer
+  +name: string
+  +relative_path: string
+  +extension: string
+  +size_bytes: bigint
+  +modified_at: datetime
+  +is_dir: boolean
+  +owner: string
+}
+
+class AuditLog {
+  +id: integer
+  +tenant_id: integer
+  +action: string
+  +actor: string
+  +target: string
+  +detail: text
+  +created_at: datetime
+}
+
+class ProcessLog {
+  +id: integer
+  +tenant_id: integer
+  +job_name: string
+  +status: string
+  +message: text
+  +started_at: datetime
+  +finished_at: datetime
+  +created_count: int
+  +updated_count: int
+  +deleted_count: int
+  +scanned_count: int
+  +created_at: datetime
+}
+
+Tenant "1" -- "*" FileEntry
+Tenant "1" -- "*" AuditLog
+Tenant "0..1" -- "*" ProcessLog
+@enduml

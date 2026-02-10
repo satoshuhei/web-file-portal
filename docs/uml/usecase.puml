@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+actor "利用者" as User
+actor "運用者" as Ops
+
+rectangle "Web File Portal" {
+  usecase "ファイル一覧表示" as UC1
+  usecase "検索" as UC2
+  usecase "プレビュー" as UC3
+  usecase "単体ダウンロード" as UC4
+  usecase "選択ZIPダウンロード" as UC5
+  usecase "検索結果ZIPダウンロード" as UC6
+  usecase "ヘルスチェック" as UC7
+  usecase "インデックス同期" as UC8
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+Ops --> UC8
+@enduml

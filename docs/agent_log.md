@@ -19,6 +19,119 @@
 ### Notes / Risks
 - TBD
 
+## 2026-02-10
+
+### Instruction
+- Add exception flows and batch failure branches to UML.
+
+### Agent Response
+- Added exception branches to the search download sequence diagram.
+- Added a batch sync sequence diagram with failure branches.
+- Updated the detailed design UML references.
+
+### Commands
+- None
+
+### Files Changed
+- docs/uml/sequence_search_download.puml
+- docs/uml/sequence_sync_file_index.puml
+- docs/detail_design.md
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-10
+
+### Instruction
+- Add image links to the documentation for UML diagrams.
+
+### Agent Response
+- Linked rendered PNGs in requirements, basic design, and detailed design documents.
+
+### Commands
+- None
+
+### Files Changed
+- docs/requirements.md
+- docs/basic_design.md
+- docs/detail_design.md
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-10
+
+### Instruction
+- Generate images from PlantUML files.
+
+### Agent Response
+- Rendered PNG images for all UML diagrams into docs/uml/images using plantuml.jar.
+
+### Commands
+- java -jar "C:\setup\plantuml-mit-1.2026.1.jar" -tpng -o images docs/uml/*.puml
+
+### Files Changed
+- docs/uml/images/class.png
+- docs/uml/images/component.png
+- docs/uml/images/deployment.png
+- docs/uml/images/er.png
+- docs/uml/images/sequence_search_download.png
+- docs/uml/images/sequence_sync_file_index.png
+- docs/uml/images/usecase.png
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-10
+
+### Instruction
+- Refine requirements by adding MoSCoW priorities for non-functional requirements.
+
+### Agent Response
+- Added a MoSCoW priority table under non-functional requirements with security emphasis.
+
+### Commands
+- None
+
+### Files Changed
+- docs/requirements.md
+- docs/agent_log.md
+
+### Notes / Risks
+- None
+
+## 2026-02-10
+
+### Instruction
+- Create requirements, basic design, and detailed design documents in Japanese, with PlantUML diagrams.
+
+### Agent Response
+- Added three Markdown documents under docs/.
+- Added PlantUML diagrams under docs/uml/.
+- Recorded the documentation decision.
+
+### Commands
+- None
+
+### Files Changed
+- docs/requirements.md
+- docs/basic_design.md
+- docs/detail_design.md
+- docs/uml/usecase.puml
+- docs/uml/class.puml
+- docs/uml/sequence_search_download.puml
+- docs/uml/er.puml
+- docs/uml/component.puml
+- docs/uml/deployment.puml
+- docs/decision_log.md
+- docs/agent_log.md
+
+### Notes / Risks
+- Documentation reflects current implementation; authz/tenants/audit UI remains placeholder.
+
 ## 2026-02-08
 
 ### Instruction

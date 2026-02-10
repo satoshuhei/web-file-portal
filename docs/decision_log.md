@@ -39,3 +39,21 @@
 ### Follow-ups
 - TBD
 
+## 003
+
+### Decision
+- Add requirements, basic design, and detailed design documents with UML diagrams.
+
+### Context
+- The user requested comprehensive documentation outputs in Markdown and PlantUML.
+
+### Alternatives
+- Provide only Markdown without UML.
+- Document only a subset of the system.
+
+### Consequences
+- Documentation files and UML diagrams are created under docs/.
+
+### Follow-ups
+- TBD
+
